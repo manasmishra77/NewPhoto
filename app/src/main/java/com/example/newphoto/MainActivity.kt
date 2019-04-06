@@ -1,5 +1,6 @@
 package com.example.newphoto
 
+import android.animation.ValueAnimator
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -88,9 +89,23 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
 
     fun showInvitationView() {
+
+    animateINavitationViewPresence()
+    }
+
+    fun animateINavitationViewPresence() {
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
-        layoutParams?.topMargin = 50
-        invitationHoderview.requestLayout()
+
+
+
+        val valueAnimator = ValueAnimator.ofInt(1800, 100)
+        valueAnimator.addUpdateListener {
+            val value = it.animatedValue as Int
+            layoutParams?.topMargin = value
+            invitationHoderview.requestLayout()
+        }
+        valueAnimator.duration = 1000
+        valueAnimator.start()
 
     }
 
