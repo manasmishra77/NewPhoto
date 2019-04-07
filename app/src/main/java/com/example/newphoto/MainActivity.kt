@@ -1,6 +1,8 @@
 package com.example.newphoto
 
+import android.animation.Animator
 import android.animation.ValueAnimator
+import android.content.res.Resources
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -15,7 +17,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
+class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Animator.AnimatorListener {
 
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var photoAdapter: PhotoAdapter
@@ -23,12 +25,30 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private lateinit var mDetector: GestureDetectorCompat
 
+    val screenHeight get() = Resources.getSystem().displayMetrics.heightPixels/densityOfPixel
+    val screenWidth get() = Resources.getSystem().displayMetrics.widthPixels/densityOfPixel
+    val densityOfPixel: Float = Resources.getSystem().displayMetrics.density
+    val initialTopMargin = ((screenHeight - 100)*densityOfPixel).toInt()
+
+    var isInvitatioHolderViewPresented: Boolean = false
+    var isInvitationHolderAnimationGoingOn: Boolean = false
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //configureRecyclerView()
+        configureViews()
         mDetector = GestureDetectorCompat(this, this)
+    }
+
+    fun configureViews() {
+        val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
+        layoutParams?.topMargin = initialTopMargin
+        layoutParams?.bottomMargin = (- screenHeight + 50).toInt()
+        invitationHoderview.requestLayout()
+        //configureRecyclerView()
     }
 
     fun configureRecyclerView() {
@@ -89,24 +109,45 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
 
     fun showInvitationView() {
-
-    animateINavitationViewPresence()
+        animateINavitationViewPresence()
     }
 
     fun animateINavitationViewPresence() {
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
+        var valueAnimator = ValueAnimator.ofInt(initialTopMargin, 100)
+        if (isInvitationHolderAnimationGoingOn) {
+            return
+        }
+        isInvitationHolderAnimationGoingOn = true
+        if (isInvitatioHolderViewPresented) {
+            valueAnimator = ValueAnimator.ofInt(100, initialTopMargin)
 
+        } else {
 
-
-        val valueAnimator = ValueAnimator.ofInt(1800, 100)
+        }
         valueAnimator.addUpdateListener {
             val value = it.animatedValue as Int
             layoutParams?.topMargin = value
             invitationHoderview.requestLayout()
         }
+        valueAnimator.addListener(this)
         valueAnimator.duration = 1000
         valueAnimator.start()
 
+    }
+
+    override fun onAnimationStart(animation: Animator?) {
+    }
+
+    override fun onAnimationEnd(animation: Animator?) {
+        isInvitatioHolderViewPresented = !isInvitatioHolderViewPresented
+        isInvitationHolderAnimationGoingOn = false
+    }
+
+    override fun onAnimationCancel(animation: Animator?) {
+    }
+
+    override fun onAnimationRepeat(animation: Animator?) {
     }
 
 
