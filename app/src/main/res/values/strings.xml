@@ -4,16 +4,18 @@
     <string name="name1">Archana</string>
     <string name="nam2">Bibek</string>
     <string name="and">AND</string>
-    <string name="requestText">REQUEST THE HONOUR OF YOUR PRESENCE AT OUR WEDDING</string>
+    <string name="requestText">REQUEST THE HONOUR OF YOUR PRESENCE</string>
+    <string name="requestText2">AT OUR WEDDING</string>
+    <string name="onText">ON</string>
     <string name="ceremonyHeading">Marriage</string>
     <string name="ceremonyBody">26th May,2019-Sunday</string>
-    <string name="ceremonyVenue1">ABC</string>
+    <string name="ceremonyVenue1">At - Berhampur</string>
     <string name="ceremonyVenue2">DEF</string>
 
     <string name="receptionHeading">Reception</string>
     <string name="receptionBody">29th May,2019-Sunday</string>
-    <string name="receptionVenue1">ABC</string>
+    <string name="receptionVenue1">At - Balasore</string>
     <string name="receptionVenue2">DEF</string>
-    <string name="contactNumber">1111111111/1111111111</string>
+    <string name="contactNumber">9083456555/9800767643</string>
 
 </resources>

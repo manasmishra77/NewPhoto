@@ -3,6 +3,7 @@ package com.example.newphoto
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.res.Resources
+import android.graphics.drawable.AnimationDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -13,6 +14,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.LayoutDirection
 import android.view.MotionEvent
 import android.view.GestureDetector
+import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -24,11 +26,12 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     private lateinit var photoRecycleManager: RecyclerView.LayoutManager
 
     private lateinit var mDetector: GestureDetectorCompat
+    private var bgAnimator: AnimationDrawable? = null
 
     val screenHeight get() = Resources.getSystem().displayMetrics.heightPixels/densityOfPixel
     val screenWidth get() = Resources.getSystem().displayMetrics.widthPixels/densityOfPixel
     val densityOfPixel: Float = Resources.getSystem().displayMetrics.density
-    val initialTopMargin = ((screenHeight - 100)*densityOfPixel).toInt()
+    val initialTopMargin = ((screenHeight - 50)*densityOfPixel).toInt()
 
     var isInvitatioHolderViewPresented: Boolean = false
     var isInvitationHolderAnimationGoingOn: Boolean = false
@@ -43,11 +46,30 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         mDetector = GestureDetectorCompat(this, this)
     }
 
-    fun configureViews() {
+    private fun configureViews() {
+//        this.window.decorView.apply {
+//            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+//        }
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
         layoutParams?.topMargin = initialTopMargin
-        layoutParams?.bottomMargin = (- screenHeight + 50).toInt()
+        layoutParams?.bottomMargin = (- screenHeight).toInt()
         invitationHoderview.requestLayout()
+
+        //Configure Background of invitationView
+        bgAnimator = invitationHoderview.background as? AnimationDrawable
+        bgAnimator?.setEnterFadeDuration(6000)
+        bgAnimator?.setExitFadeDuration(2000)
+
         //configureRecyclerView()
     }
 
@@ -66,6 +88,25 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
             adapter = photoAdapter
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (bgAnimator != null) {
+            if (!bgAnimator!!.isRunning) {
+                bgAnimator?.start()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (bgAnimator != null) {
+            if (bgAnimator!!.isRunning) {
+                bgAnimator?.stop()
+            }
+        }
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return if (mDetector.onTouchEvent(event)) {
             true
@@ -76,15 +117,6 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 
 
     override fun onDown(e: MotionEvent?): Boolean {
-        if (e != null) {
-            if (e.actionMasked == MotionEvent.ACTION_DOWN) {
-                print("Down")
-                showInvitationView()
-            } else if (e.actionMasked == MotionEvent.ACTION_UP) {
-                print("UP")
-            }
-        }
-
         return true
     }
 
@@ -92,7 +124,16 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     }
 
     override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-        return true
+        if (velocityY > 0.5) {
+            print("Down")
+            handleInvitationView(isDown = true)
+            return  true
+        } else if (velocityY < -0.5) {
+            print("Up")
+            handleInvitationView(isDown = false)
+            return  true
+        }
+        return false
     }
 
     override fun onLongPress(e: MotionEvent?) {
@@ -108,26 +149,53 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     }
 
 
-    fun showInvitationView() {
-        animateINavitationViewPresence()
+    private fun handleInvitationView(isDown: Boolean) {
+        if (isDown) {
+            hideInvitationHolderView()
+        } else {
+            showInvitationHolderView()
+        }
     }
 
-    fun animateINavitationViewPresence() {
+    private fun showInvitationHolderView() {
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
-        var valueAnimator = ValueAnimator.ofInt(initialTopMargin, 100)
+        var valueAnimator = ValueAnimator.ofInt(initialTopMargin, 5)
         if (isInvitationHolderAnimationGoingOn) {
             return
         }
-        isInvitationHolderAnimationGoingOn = true
         if (isInvitatioHolderViewPresented) {
-            valueAnimator = ValueAnimator.ofInt(100, initialTopMargin)
-
-        } else {
-
+            return
         }
+        isInvitationHolderAnimationGoingOn = true
+        isInvitatioHolderViewPresented = true
+
         valueAnimator.addUpdateListener {
             val value = it.animatedValue as Int
             layoutParams?.topMargin = value
+            arrowIconImageView.rotation = 180f
+            invitationHoderview.requestLayout()
+        }
+        valueAnimator.addListener(this)
+        valueAnimator.duration = 1000
+        valueAnimator.start()
+
+    }
+    private fun hideInvitationHolderView() {
+        val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
+        var valueAnimator = ValueAnimator.ofInt(5, initialTopMargin)
+        if (isInvitationHolderAnimationGoingOn) {
+            return
+        }
+        if (!isInvitatioHolderViewPresented) {
+            return
+        }
+        isInvitationHolderAnimationGoingOn = true
+        isInvitatioHolderViewPresented = false
+        valueAnimator.addUpdateListener {
+            val value = it.animatedValue as Int
+            layoutParams?.topMargin = value
+            arrowIconImageView.rotation = 0f
+            arrowIconImageView.requestLayout()
             invitationHoderview.requestLayout()
         }
         valueAnimator.addListener(this)
@@ -136,11 +204,11 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 
     }
 
+
     override fun onAnimationStart(animation: Animator?) {
     }
 
     override fun onAnimationEnd(animation: Animator?) {
-        isInvitatioHolderViewPresented = !isInvitatioHolderViewPresented
         isInvitationHolderAnimationGoingOn = false
     }
 
