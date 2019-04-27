@@ -37,6 +37,7 @@ class PhotoAdapter: RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
     // total number of rows
     override fun getItemCount(): Int {
+
         return photoIndexes!!.count()
     }
 
@@ -49,3 +50,4 @@ class PhotoAdapter: RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
         }
     }
 }
+

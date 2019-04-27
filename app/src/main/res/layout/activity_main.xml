@@ -30,7 +30,7 @@
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toStartOf="@+id/invitationHoderview" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:fontFamily="casual" android:textSize="12sp" android:textStyle="bold"
-            android:layout_marginTop="45dp" app:layout_constraintTop_toBottomOf="@+id/arrowIconImageView"/>
+            android:layout_marginTop="40dp" app:layout_constraintTop_toBottomOf="@+id/arrowIconImageView"/>
     <TextView
             android:text="@string/name1"
             android:layout_width="wrap_content"
@@ -65,8 +65,8 @@
             app:layout_constraintRight_toRightOf="parent"/>
     <TextView
             android:text="@string/requestText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="254dp"
+            android:layout_height="21dp"
             android:id="@+id/textView5"
             android:maxLines="2" android:lines="2"
             android:inputType="textMultiLine" app:fontFamily="casual" android:textSize="12sp" android:textStyle="bold"
@@ -175,4 +175,10 @@
             app:layout_constraintTop_toBottomOf="@+id/textView13"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
+    <com.example.newphoto.InfiniteRotationView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iRView" app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/colorAccent"/>
 </android.support.constraint.ConstraintLayout>

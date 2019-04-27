@@ -6,17 +6,14 @@ import android.content.res.Resources
 import android.graphics.drawable.AnimationDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
 import android.support.v4.view.GestureDetectorCompat
-import android.support.v4.view.MotionEventCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.LayoutDirection
 import android.view.MotionEvent
 import android.view.GestureDetector
-import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_main.*
+import android.media.MediaPlayer
 
 
 class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Animator.AnimatorListener {
@@ -24,6 +21,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var photoAdapter: PhotoAdapter
     private lateinit var photoRecycleManager: RecyclerView.LayoutManager
+    private lateinit var rotationViewI: InfiniteRotationView
 
     private lateinit var mDetector: GestureDetectorCompat
     private var bgAnimator: AnimationDrawable? = null
@@ -31,7 +29,8 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     val screenHeight get() = Resources.getSystem().displayMetrics.heightPixels/densityOfPixel
     val screenWidth get() = Resources.getSystem().displayMetrics.widthPixels/densityOfPixel
     val densityOfPixel: Float = Resources.getSystem().displayMetrics.density
-    val initialTopMargin = ((screenHeight - 50)*densityOfPixel).toInt()
+    val maximumMargin = ((screenHeight - 100)*densityOfPixel).toInt()
+    val minimumMargin = 5
 
     var isInvitatioHolderViewPresented: Boolean = false
     var isInvitationHolderAnimationGoingOn: Boolean = false
@@ -43,26 +42,26 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         configureViews()
-        mDetector = GestureDetectorCompat(this, this)
+        mDetector = GestureDetectorCompat(invitationHoderview.context, this)
+        //photoRecyclerView.setOnTouchListener(OnSwipeTouchListener(this))
+//        photoRecyclerView.setOnTouchListener(object: OnSwipeTouchListener(this@MainActivity) {
+//            override fun onSwipeDown() {
+//                print("swipe")
+//                handleInvitationView(isDown = true)
+//            }
+//
+//            override fun onSwipeUp() {
+//                //super.onSwipeUp()
+//                print("swipe")
+//                handleInvitationView(isDown = false)
+//            }
+//        })
     }
 
     private fun configureViews() {
-//        this.window.decorView.apply {
-//            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-//        }
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                // Set the content to appear under the system bars so that the
-                // content doesn't resize when the system bars hide and show.
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                // Hide the nav bar and status bar
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
-
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
-        layoutParams?.topMargin = initialTopMargin
-        layoutParams?.bottomMargin = (- screenHeight).toInt()
+        layoutParams?.topMargin = maximumMargin
+        layoutParams?.bottomMargin = (-maximumMargin)
         invitationHoderview.requestLayout()
 
         //Configure Background of invitationView
@@ -70,24 +69,39 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         bgAnimator?.setEnterFadeDuration(6000)
         bgAnimator?.setExitFadeDuration(2000)
 
-        //configureRecyclerView()
+        configureRecyclerView()
+        configureMediaPlayer()
     }
+
 
     fun configureRecyclerView() {
         var photoArr = ArrayList<Int>()
-        photoArr.add(R.drawable.flower1)
-        photoArr.add(R.drawable.flower2)
-        photoArr.add(R.drawable.flower3)
-        photoArr.add(R.drawable.flower4)
-        photoArr.add(R.drawable.flower5)
+        photoArr.add(R.drawable.pe1)
+        photoArr.add(R.drawable.ab2)
+        photoArr.add(R.drawable.ab3)
+        photoArr.add(R.drawable.ab4)
+        photoArr.add(R.drawable.ab5)
 
-        photoAdapter = PhotoAdapter(this, photoArr)
-        photoRecycleManager = LinearLayoutManager(this, 0, false)
-        photoRecyclerView = findViewById<RecyclerView>(R.id.photoRecyclerView).apply {
-            layoutManager = photoRecycleManager
-            adapter = photoAdapter
-        }
+//        photoAdapter = PhotoAdapter(this, photoArr)
+//        photoRecycleManager = LinearLayoutManager(this, 0, false)
+//        photoRecyclerView = findViewById<RecyclerView>(R.id.photoRecyclerView).apply {
+//            layoutManager = photoRecycleManager
+//            adapter = photoAdapter
+//        }
+        rotationViewI = iRView
+        rotationViewI.setAdapter(InfiniteRotationAdapter(photos = photoArr))
+        //rotationViewI.autoScroll(photoArr.size, 2000)
+
     }
+
+    fun configureMediaPlayer() {
+        val mediaPlayer = MediaPlayer.create(this, R.raw.tenderlove)
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
+
+    }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -159,7 +173,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 
     private fun showInvitationHolderView() {
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
-        var valueAnimator = ValueAnimator.ofInt(initialTopMargin, 5)
+        var valueAnimator = ValueAnimator.ofFloat(1.0f, 0.0f)
         if (isInvitationHolderAnimationGoingOn) {
             return
         }
@@ -170,9 +184,10 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         isInvitatioHolderViewPresented = true
 
         valueAnimator.addUpdateListener {
-            val value = it.animatedValue as Int
-            layoutParams?.topMargin = value
-            arrowIconImageView.rotation = 180f
+            val value = it.animatedValue as Float
+            layoutParams?.topMargin = (value*maximumMargin).toInt() + minimumMargin
+            layoutParams?.bottomMargin = -(value*maximumMargin).toInt() + minimumMargin
+            arrowIconImageView.rotation = (1f-value)*180
             invitationHoderview.requestLayout()
         }
         valueAnimator.addListener(this)
@@ -182,7 +197,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     }
     private fun hideInvitationHolderView() {
         val layoutParams = invitationHoderview.layoutParams as? ViewGroup.MarginLayoutParams
-        var valueAnimator = ValueAnimator.ofInt(5, initialTopMargin)
+        var valueAnimator = ValueAnimator.ofFloat(0f, 1.0f)
         if (isInvitationHolderAnimationGoingOn) {
             return
         }
@@ -192,16 +207,16 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         isInvitationHolderAnimationGoingOn = true
         isInvitatioHolderViewPresented = false
         valueAnimator.addUpdateListener {
-            val value = it.animatedValue as Int
-            layoutParams?.topMargin = value
-            arrowIconImageView.rotation = 0f
+            val value = it.animatedValue as Float
+            layoutParams?.topMargin = (value*maximumMargin).toInt()
+            layoutParams?.bottomMargin = -(value*maximumMargin).toInt()
+            arrowIconImageView.rotation = (1f-value)*180
             arrowIconImageView.requestLayout()
             invitationHoderview.requestLayout()
         }
         valueAnimator.addListener(this)
         valueAnimator.duration = 1000
         valueAnimator.start()
-
     }
 
 

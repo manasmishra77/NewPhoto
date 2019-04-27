@@ -6,7 +6,7 @@
 
     <ImageView
             android:layout_width="0dp"
-            android:layout_height="0dp" tools:srcCompat="@drawable/flower1"
+            android:layout_height="0dp" tools:srcCompat="@drawable/pe1"
             android:id="@+id/coverPhoto" android:layout_marginTop="2dp"
             android:scaleType="centerCrop" android:adjustViewBounds="true"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
