@@ -20,9 +20,9 @@ import java.util.*
 class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
     : RelativeLayout(context, attributeSet) {
 
-    internal lateinit var recyclerView: RecyclerView
+    internal var recyclerView: RecyclerView
 
-    private val layoutManager: LinearLayoutManager
+    private val layoutManager: CustomLayoutManager
     private lateinit var onScrollListener: OnScrollListener
 
    // private var dispose: Disposable? = null
@@ -31,7 +31,7 @@ class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
     init {
         View.inflate(context, R.layout.view_infinite_rotation, this)
         recyclerView = recyclerView_horizontalList
-        layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
+        layoutManager = CustomLayoutManager(context)
     }
 
     fun setAdapter(adapter: InfiniteRotationAdapter) {
@@ -52,6 +52,7 @@ class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
                             //dispose?.dispose()
                             timer?.cancel()
                             timer = null
+                            autoScroll(intervalInMillis = 5000)
                         }
                     }
                 recyclerView.addOnScrollListener(onScrollListener)
@@ -59,38 +60,38 @@ class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
             }
     }
 
-    fun autoScroll(listSize: Int, intervalInMillis: Long) {
-
+    fun autoScroll(intervalInMillis: Long) {
         timer?.let {
             return
         }
 
         timer = Timer()
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                TODO("Do something")
-                val firstItemVisible = layoutManager.findFirstVisibleItemPosition()
-                recyclerView.smoothScrollToPosition(firstItemVisible + 1)
-            }
-        }, intervalInMillis)
+        timer?.scheduleAtFixedRate(CustomTimerTask(layoutManager, recyclerView), 0.0.toLong(), intervalInMillis)
 
+    }
 
+    fun disableScrolling() {
+        stopAutoScroll()
+        layoutManager.disableScrolling()
+    }
 
-
-//
-//        dispose?.let {
-//            if(!it.isDisposed) return
-//        }
-//        dispose = Flowable.interval(intervalInMillis, TimeUnit.MILLISECONDS)
-//            .map { it % listSize + 1 }
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe {
-//                recyclerView.smoothScrollToPosition(it.toInt() + 1)
-//            }
+    fun enableScrolling() {
+        autoScroll(5000)
+        layoutManager.enableScrolling()
     }
 
     fun stopAutoScroll() {
-        //dispose?.let(Disposable::dispose)
+        timer?.cancel()
+        timer = null
+    }
+
+    class CustomTimerTask(val layoutManager: LinearLayoutManager, val recyclerView: RecyclerView): TimerTask() {
+
+        override fun run() {
+            val firstItemVisible = layoutManager.findFirstVisibleItemPosition()
+            recyclerView.smoothScrollToPosition(firstItemVisible + 1)
+        }
+
     }
 
     class OnScrollListener(
@@ -114,6 +115,26 @@ class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             stateChanged(newState)
+        }
+    }
+
+    class CustomLayoutManager(context: Context): LinearLayoutManager(context, HORIZONTAL, false) {
+        private var scrollable = true
+        fun enableScrolling() {
+            scrollable = true
+        }
+
+        fun disableScrolling() {
+            scrollable = false
+        }
+
+
+        override fun canScrollHorizontally(): Boolean {
+            return super.canScrollHorizontally() && scrollable
+        }
+
+        override fun canScrollVertically(): Boolean {
+            return false
         }
     }
 }

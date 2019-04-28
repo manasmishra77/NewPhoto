@@ -1,21 +1,27 @@
 <resources>
-    <string name="app_name">Newphoto</string>
-    <string name="we">XXXXXXXX</string>
-    <string name="name1">XXXXXXXX</string>
-    <string name="nam2">XXXXXXXX</string>
-    <string name="and">XXXXXXXX</string>
-    <string name="requestText">XXXXXXXX</string>
-    <string name="requestText2">XXXXXXXX</string>
-    <string name="onText">XXXXXXXX</string>
-    <string name="ceremonyHeading">XXXXXXXX</string>
-    <string name="ceremonyBody">XXXXXXXX</string>
-    <string name="ceremonyVenue1">XXXXXXXX</string>
-    <string name="ceremonyVenue2">XXXXXXXX</string>
+    <string name="app_name">Invitation</string>
+    <string name="we">WE</string>
+    <string name="name1">Archana</string>
+    <string name="nam2">Bibek</string>
+    <string name="and">AND</string>
+    <string name="requestText">REQUEST THE HONOUR OF YOUR PRESENCE</string>
+    <string name="requestText2">AT OUR WEDDING</string>
+    <string name="onText">ON</string>
+    <string name="ceremonyHeading">Marriage</string>
+    <string name="ceremonyBody">10:10PM, 26th May,2019-Sunday</string>
+    <string name="ceremonyVenue1">At - Berhampur</string>
+    <string name="ceremonyVenue2">DEF</string>
 
-    <string name="receptionHeading">XXXXXXXX</string>
-    <string name="receptionBody">XXXXXXXX</string>
-    <string name="receptionVenue1">XXXXXXXX</string>
-    <string name="receptionVenue2">XXXXXXXX</string>
-    <string name="contactNumber">XXXXXXXX</string>
+    <string name="receptionHeading">Reception</string>
+    <string name="receptionBody">29th May,2019-Sunday</string>
+    <string name="receptionVenue1">At - Balasore</string>
+    <string name="receptionVenue2">DEF</string>
+    <string name="contactNumber">9083456555/9800767643</string>
+
+    <string name= "mrgAddressButton">Marriage Details</string>
+    <string name="receptionAddressButton">Reception Details</string>
+    <string name= "mrgAddressDetails">Marriage: 26th May, 2019\nTime: 7:30pm onwards\nAt: Balaji Hotel, Church Road, opp-Vishal Mega Mart, Berhampur\nM: 9132985078</string>
+    <string name= "receptionAddressDetails">Marriage: 29th May, 2019\nTime: 7:30pm onwards\nAt: Venya Paradise, Near Samvad Square, Balasore\nM: 8356903414</string>
+
 
 </resources>

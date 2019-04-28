@@ -14,6 +14,9 @@ import android.view.GestureDetector
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.activity_main.*
 import android.media.MediaPlayer
+import android.opengl.Visibility
+import android.support.v7.app.AlertDialog
+import android.view.View
 
 
 class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Animator.AnimatorListener {
@@ -34,7 +37,7 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 
     var isInvitatioHolderViewPresented: Boolean = false
     var isInvitationHolderAnimationGoingOn: Boolean = false
-
+    var mediaPlayer:  MediaPlayer? = null
 
 
 
@@ -44,18 +47,18 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         configureViews()
         mDetector = GestureDetectorCompat(invitationHoderview.context, this)
         //photoRecyclerView.setOnTouchListener(OnSwipeTouchListener(this))
-//        photoRecyclerView.setOnTouchListener(object: OnSwipeTouchListener(this@MainActivity) {
-//            override fun onSwipeDown() {
-//                print("swipe")
-//                handleInvitationView(isDown = true)
-//            }
-//
-//            override fun onSwipeUp() {
-//                //super.onSwipeUp()
-//                print("swipe")
-//                handleInvitationView(isDown = false)
-//            }
-//        })
+        rotationViewI.recyclerView.setOnTouchListener(object: OnSwipeTouchListener(this@MainActivity) {
+            override fun onSwipeDown() {
+                print("swipe")
+                handleInvitationView(isDown = true)
+            }
+
+            override fun onSwipeUp() {
+                //super.onSwipeUp()
+                print("swipe")
+                handleInvitationView(isDown = false)
+            }
+        })
     }
 
     private fun configureViews() {
@@ -63,11 +66,20 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
         layoutParams?.topMargin = maximumMargin
         layoutParams?.bottomMargin = (-maximumMargin)
         invitationHoderview.requestLayout()
+        receptionAddress.visibility = View.INVISIBLE
+        mrgAddress.visibility = View.INVISIBLE
 
         //Configure Background of invitationView
         bgAnimator = invitationHoderview.background as? AnimationDrawable
         bgAnimator?.setEnterFadeDuration(6000)
         bgAnimator?.setExitFadeDuration(2000)
+
+        receptionAddress.setOnClickListener {
+            showAlertAddress(true)
+        }
+        mrgAddress.setOnClickListener {
+            showAlertAddress(false)
+        }
 
         configureRecyclerView()
         configureMediaPlayer()
@@ -90,15 +102,34 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 //        }
         rotationViewI = iRView
         rotationViewI.setAdapter(InfiniteRotationAdapter(photos = photoArr))
-        //rotationViewI.autoScroll(photoArr.size, 2000)
-
+        rotationViewI.autoScroll(intervalInMillis = 5000)
     }
 
     fun configureMediaPlayer() {
-        val mediaPlayer = MediaPlayer.create(this, R.raw.tenderlove)
-        mediaPlayer.isLooping = true
-        mediaPlayer.start()
+        mediaPlayer = MediaPlayer.create(this, R.raw.tenderlove)
+        mediaPlayer?.isLooping = true
+        mediaPlayer?.start()
 
+    }
+
+    fun showAlertAddress(isRecption: Boolean) {
+        // Initialize a new instance of
+        val builder = AlertDialog.Builder(this@MainActivity)
+        if (isRecption) {
+            builder.setTitle(R.string.receptionAddressButton)
+            builder.setMessage(R.string.receptionAddressDetails)
+        } else {
+            builder.setTitle(R.string.mrgAddressButton)
+            builder.setMessage(R.string.mrgAddressDetails)
+        }
+        builder.setPositiveButton("Ok"){dialog, which ->
+
+        }
+        // Finally, make the alert dialog using builder
+        val dialog: AlertDialog = builder.create()
+
+        // Display the alert dialog on app interface
+        dialog.show()
     }
 
 
@@ -166,8 +197,10 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
     private fun handleInvitationView(isDown: Boolean) {
         if (isDown) {
             hideInvitationHolderView()
+            rotationViewI.enableScrolling()
         } else {
             showInvitationHolderView()
+            rotationViewI.disableScrolling()
         }
     }
 
@@ -221,10 +254,19 @@ class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener, Ani
 
 
     override fun onAnimationStart(animation: Animator?) {
+        if (!isInvitatioHolderViewPresented) {
+            //When view is going to disappear
+            receptionAddress.visibility = View.INVISIBLE
+            mrgAddress.visibility = View.INVISIBLE
+        }
     }
 
     override fun onAnimationEnd(animation: Animator?) {
         isInvitationHolderAnimationGoingOn = false
+        if (isInvitatioHolderViewPresented) {
+            receptionAddress.visibility = View.VISIBLE
+            mrgAddress.visibility = View.VISIBLE
+        }
     }
 
     override fun onAnimationCancel(animation: Animator?) {
