@@ -66,7 +66,7 @@ class InfiniteRotationView(context: Context, attributeSet: AttributeSet)
         }
 
         timer = Timer()
-        timer?.scheduleAtFixedRate(CustomTimerTask(layoutManager, recyclerView), 0.0.toLong(), intervalInMillis)
+        timer?.scheduleAtFixedRate(CustomTimerTask(layoutManager, recyclerView), 5000.0.toLong(), intervalInMillis)
 
     }
 
